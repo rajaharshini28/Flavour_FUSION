@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Discover Recipes - Flavour Fusion{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <span class="hero-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> AI-Driven Recommendation Engine</span>
+        <h1 class="hero-title">Turn Your Ingredients Into <span class="gradient-text">Personalised Masterpieces</span></h1>
+        <p class="hero-subtitle">Enter available ingredients, dietary preferences, and macro goals. Our Python recommendation pipeline ranks candidate recipes with explainable AI scores.</p>
+    </div>
+</div>
+
+<div class="form-container glass-card">
+    <form action="{{ url_for('recommendation.recommend') }}" method="POST" id="recommendation-form">
+        
+        <!-- SECTION 1: INGREDIENTS -->
+        <div class="form-section">
+            <h2 class="section-title"><i class="fa-solid fa-basket-shopping"></i> Available Ingredients</h2>
+            <p class="section-desc">Type ingredients separated by commas or click quick preset tags below.</p>
+            
+            <div class="input-group">
+                <input type="text" name="ingredients" id="ingredients-input" class="form-control" 
+                       placeholder="e.g. Chicken, Tomato, Onion, Garlic..." required autocomplete="off">
+            </div>
+
+            <div class="quick-tags">
+                <span class="tag-label">Quick Add:</span>
+                <button type="button" class="preset-tag" data-tag="Chicken">+ Chicken</button>
+                <button type="button" class="preset-tag" data-tag="Tomato">+ Tomato</button>
+                <button type="button" class="preset-tag" data-tag="Garlic">+ Garlic</button>
+                <button type="button" class="preset-tag" data-tag="Onion">+ Onion</button>
+                <button type="button" class="preset-tag" data-tag="Paneer">+ Paneer</button>
+                <button type="button" class="preset-tag" data-tag="Cheese">+ Cheese</button>
+                <button type="button" class="preset-tag" data-tag="Spinach">+ Spinach</button>
+                <button type="button" class="preset-tag" data-tag="Rice">+ Rice</button>
+            </div>
+        </div>
+
+        <!-- SECTION 2: DIETARY & CUISINE PREFERENCES -->
+        <div class="form-section grid-2">
+            <div class="form-group">
+                <label for="diet" class="form-label"><i class="fa-solid fa-leaf"></i> Dietary Preference</label>
+                <select name="diet" id="diet" class="form-control">
+                    <option value="None" {% if user_prefs.get('diet') == 'None' %}selected{% endif %}>None (No Restrictions)</option>
+                    <option value="Vegetarian" {% if user_prefs.get('diet') == 'Vegetarian' %}selected{% endif %}>Vegetarian</option>
+                    <option value="Vegan" {% if user_prefs.get('diet') == 'Vegan' %}selected{% endif %}>Vegan</option>
+                    <option value="Gluten Free" {% if user_prefs.get('diet') == 'Gluten Free' %}selected{% endif %}>Gluten Free</option>
+                    <option value="Dairy Free" {% if user_prefs.get('diet') == 'Dairy Free' %}selected{% endif %}>Dairy Free</option>
+                    <option value="Keto" {% if user_prefs.get('diet') == 'Keto' %}selected{% endif %}>Keto</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cuisine" class="form-label"><i class="fa-solid fa-globe"></i> Preferred Cuisine</label>
+                <select name="cuisine" id="cuisine" class="form-control">
+                    <option value="Any" {% if user_prefs.get('cuisine') == 'Any' %}selected{% endif %}>Any Cuisine</option>
+                    <option value="Indian" {% if user_prefs.get('cuisine') == 'Indian' %}selected{% endif %}>Indian</option>
+                    <option value="Italian" {% if user_prefs.get('cuisine') == 'Italian' %}selected{% endif %}>Italian</option>
+                    <option value="Mexican" {% if user_prefs.get('cuisine') == 'Mexican' %}selected{% endif %}>Mexican</option>
+                    <option value="Chinese" {% if user_prefs.get('cuisine') == 'Chinese' %}selected{% endif %}>Chinese</option>
+                    <option value="Mediterranean" {% if user_prefs.get('cuisine') == 'Mediterranean' %}selected{% endif %}>Mediterranean</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- SECTION 3: MEAL TYPE & ALLERGIES -->
+        <div class="form-section grid-2">
+            <div class="form-group">
+                <label for="meal_type" class="form-label"><i class="fa-solid fa-bowl-food"></i> Meal Type</label>
+                <select name="meal_type" id="meal_type" class="form-control">
+                    <option value="Any" {% if user_prefs.get('meal_type') == 'Any' %}selected{% endif %}>Any Meal Type</option>
+                    <option value="Breakfast" {% if user_prefs.get('meal_type') == 'Breakfast' %}selected{% endif %}>Breakfast</option>
+                    <option value="Lunch" {% if user_prefs.get('meal_type') == 'Lunch' %}selected{% endif %}>Lunch</option>
+                    <option value="Dinner" {% if user_prefs.get('meal_type') == 'Dinner' %}selected{% endif %}>Dinner</option>
+                    <option value="Snack" {% if user_prefs.get('meal_type') == 'Snack' %}selected{% endif %}>Snack</option>
+                    <option value="Dessert" {% if user_prefs.get('meal_type') == 'Dessert' %}selected{% endif %}>Dessert</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="allergies" class="form-label"><i class="fa-solid fa-ban"></i> Allergies / Excluded Ingredients</label>
+                <input type="text" name="allergies" id="allergies" class="form-control" 
+                       placeholder="e.g. Peanuts, Shellfish, Eggs..." autocomplete="off">
+            </div>
+        </div>
+
+        <!-- SECTION 4: NUTRITIONAL CONSTRAINTS & COOKING TIME -->
+        <div class="form-section">
+            <h2 class="section-title"><i class="fa-solid fa-fire-flame-curved"></i> Optional Macro & Time Targets</h2>
+            <div class="grid-4">
+                <div class="form-group">
+                    <label for="max_calories" class="form-label">Max Calories (kcal)</label>
+                    <input type="number" name="max_calories" id="max_calories" class="form-control" 
+                           placeholder="e.g. 600" value="{{ user_prefs.get('max_calories', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="min_protein" class="form-label">Min Protein (g)</label>
+                    <input type="number" name="min_protein" id="min_protein" class="form-control" 
+                           placeholder="e.g. 25" value="{{ user_prefs.get('min_protein', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="max_fat" class="form-label">Max Fat (g)</label>
+                    <input type="number" name="max_fat" id="max_fat" class="form-control" 
+                           placeholder="e.g. 30" value="{{ user_prefs.get('max_fat', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="max_cooking_time" class="form-label">Max Cooking Time (mins)</label>
+                    <input type="number" name="max_cooking_time" id="max_cooking_time" class="form-control" 
+                           placeholder="e.g. 30" value="{{ user_prefs.get('max_cooking_time', '') }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBMIT BUTTON -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-large" id="submit-btn">
+                <i class="fa-solid fa-microchip"></i> Generate Personalised Recommendations
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay hidden">
+    <div class="spinner-card glass-card">
+        <div class="spinner"></div>
+        <h3>Executing AI Recommendation Engine...</h3>
+        <p>Retrieving Spoonacular candidates, extracting features, checking constraints & ranking top matches.</p>
+    </div>
+</div>
+{% endblock %}

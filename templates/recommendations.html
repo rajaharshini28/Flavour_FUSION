@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendations - Flavour Fusion{% endblock %}
+
+{% block content %}
+<div class="results-header">
+    <div>
+        <h1 class="page-title">Personalised <span class="gradient-text">Recipe Recommendations</span></h1>
+        <p class="page-subtitle">Ranked by local multi-criteria algorithm based on ingredient match, diet, nutrition, cuisine, and history.</p>
+    </div>
+    <a href="{{ url_for('main.index') }}" class="btn btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Modify Inputs
+    </a>
+</div>
+
+{% if not recipes %}
+<div class="empty-state glass-card">
+    <i class="fa-solid fa-magnifying-glass-chart empty-icon"></i>
+    <h2>No Candidate Recipes Matched Your Hard Constraints</h2>
+    <p>Try broadening your cooking time, adjusting dietary filters, or adding more available ingredients.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Try New Search</a>
+</div>
+{% else %}
+
+<div class="recipes-grid">
+    {% for recipe in recipes %}
+    <div class="recipe-card glass-card">
+        <div class="card-image-wrapper">
+            <img src="{{ recipe.image or url_for('static', filename='images/placeholder.jpg') }}" alt="{{ recipe.title }}" class="recipe-image">
+            <div class="score-badge {{ get_score_badge_class(recipe.final_score) }}">
+                <span class="score-num">{{ format_score(recipe.final_score) }}</span>
+                <span class="score-label">Match Score</span>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="card-meta">
+                <span class="meta-tag"><i class="fa-solid fa-clock"></i> {{ recipe.ready_in_minutes }} mins</span>
+                <span class="meta-tag"><i class="fa-solid fa-user-group"></i> {{ recipe.servings }} Servings</span>
+                {% if recipe.cuisines %}
+                    <span class="meta-tag cuisine-tag"><i class="fa-solid fa-globe"></i> {{ recipe.cuisines[0] }}</span>
+                {% endif %}
+            </div>
+
+            <h2 class="recipe-title">{{ recipe.title }}</h2>
+
+            <!-- Ingredients Match Breakdown -->
+            <div class="ingredients-summary">
+                <div class="ing-group matched-group">
+                    <span class="group-label"><i class="fa-solid fa-check-circle"></i> Available ({{ recipe.matched_ingredients|length }}):</span>
+                    <div class="ing-tags">
+                        {% for item in recipe.matched_ingredients %}
+                            <span class="ing-tag tag-matched">✓ {{ item.title() }}</span>
+                        {% else %}
+                            <span class="text-muted">None directly matched</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if recipe.missing_ingredients %}
+                <div class="ing-group missing-group">
+                    <span class="group-label"><i class="fa-solid fa-circle-xmark"></i> Missing ({{ recipe.missing_ingredients|length }}):</span>
+                    <div class="ing-tags">
+                        {% for item in recipe.missing_ingredients[:4] %}
+                            <span class="ing-tag tag-missing">✗ {{ item.title() }}</span>
+                        {% endfor %}
+                        {% if recipe.missing_ingredients|length > 4 %}
+                            <span class="ing-tag tag-missing-more">+{{ recipe.missing_ingredients|length - 4 }} more</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Explainable AI Section -->
+            <div class="explainable-ai-card">
+                <button class="accordion-toggle" onclick="toggleAccordion(this)">
+                    <span><i class="fa-solid fa-brain"></i> Explain Recommendation Score</span>
+                    <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content hidden">
+                    <div class="score-breakdown-grid">
+                        <div class="score-item">
+                            <span class="item-label">Ingredient Match (40%)</span>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: {{ recipe.component_scores.ingredient_score }}%;"></div>
+                            </div>
+                            <span class="item-val">{{ recipe.component_scores.ingredient_score }}%</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="item-label">Diet Match (20%)</span>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: {{ recipe.component_scores.diet_score }}%;"></div>
+                            </div>
+                            <span class="item-val">{{ recipe.component_scores.diet_score }}%</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="item-label">Nutrition Fit (15%)</span>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: {{ recipe.component_scores.nutrition_score }}%;"></div>
+                            </div>
+                            <span class="item-val">{{ recipe.component_scores.nutrition_score }}%</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="item-label">Cuisine Match (10%)</span>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: {{ recipe.component_scores.cuisine_score }}%;"></div>
+                            </div>
+                            <span class="item-val">{{ recipe.component_scores.cuisine_score }}%</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="item-label">Cooking Time Fit (10%)</span>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: {{ recipe.component_scores.time_score }}%;"></div>
+                            </div>
+                            <span class="item-val">{{ recipe.component_scores.time_score }}%</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="item-label">Personalization (5%)</span>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: {{ recipe.component_scores.history_score }}%;"></div>
+                            </div>
+                            <span class="item-val">{{ recipe.component_scores.history_score }}%</span>
+                        </div>
+                    </div>
+
+                    <div class="reasons-list">
+                        <h4>Why Recommended:</h4>
+                        <ul>
+                            {% for reason in recipe.explanation.reasons %}
+                                <li><i class="fa-solid fa-angle-right"></i> {{ reason }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <a href="{{ url_for('recipe.recipe_details', recipe_id=recipe.recipe_id) }}" class="btn btn-primary btn-block">
+                    View Complete Recipe Instructions <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endif %}
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - Flavour Fusion{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-chart-pie"></i> Platform <span class="gradient-text">Analytics Dashboard</span></h1>
+    <p class="page-subtitle">Backend data processing metrics calculated via Pandas aggregations.</p>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card glass-card">
+        <div class="kpi-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">{{ analytics.total_searches }}</span>
+            <span class="kpi-label">Total Queries</span>
+        </div>
+    </div>
+    <div class="kpi-card glass-card">
+        <div class="kpi-icon"><i class="fa-solid fa-bullseye"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">{{ analytics.avg_score }}%</span>
+            <span class="kpi-label">Avg Recommendation Score</span>
+        </div>
+    </div>
+    <div class="kpi-card glass-card">
+        <div class="kpi-icon"><i class="fa-solid fa-percentage"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">{{ analytics.avg_ingredient_score }}%</span>
+            <span class="kpi-label">Avg Ingredient Coverage</span>
+        </div>
+    </div>
+    <div class="kpi-card glass-card">
+        <div class="kpi-icon"><i class="fa-solid fa-eye"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">{{ analytics.total_interactions }}</span>
+            <span class="kpi-label">Total Recipe Interactions</span>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Metrics Grid -->
+<div class="analytics-grid grid-2">
+    <!-- Top Ingredients -->
+    <div class="glass-card">
+        <h2 class="chart-title"><i class="fa-solid fa-lemon"></i> Most Searched Ingredients</h2>
+        {% if analytics.top_ingredients %}
+            <div class="bar-chart-list">
+                {% for item in analytics.top_ingredients %}
+                <div class="chart-item">
+                    <span class="item-name">{{ item.name }}</span>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill" style="width: {{ (item.count / analytics.top_ingredients[0].count * 100)|int }}%;"></div>
+                    </div>
+                    <span class="item-count">{{ item.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">No ingredient search data available yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Top Cuisines -->
+    <div class="glass-card">
+        <h2 class="chart-title"><i class="fa-solid fa-globe"></i> Top Preferred Cuisines</h2>
+        {% if analytics.top_cuisines %}
+            <div class="bar-chart-list">
+                {% for item in analytics.top_cuisines %}
+                <div class="chart-item">
+                    <span class="item-name">{{ item.name }}</span>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill accent-purple" style="width: {{ (item.count / analytics.top_cuisines[0].count * 100)|int }}%;"></div>
+                    </div>
+                    <span class="item-count">{{ item.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">No cuisine preference data available yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Frequently Missing Ingredients -->
+    <div class="glass-card">
+        <h2 class="chart-title"><i class="fa-solid fa-cart-shopping"></i> Frequently Missing Ingredients</h2>
+        <p class="chart-subtitle">Ingredients most commonly required by recommended recipes but absent from user inputs.</p>
+        {% if analytics.top_missing_ingredients %}
+            <div class="bar-chart-list">
+                {% for item in analytics.top_missing_ingredients %}
+                <div class="chart-item">
+                    <span class="item-name">{{ item.name }}</span>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill accent-red" style="width: {{ (item.count / analytics.top_missing_ingredients[0].count * 100)|int }}%;"></div>
+                    </div>
+                    <span class="item-count">{{ item.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">No missing ingredient data logged yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Most Selected Recipes -->
+    <div class="glass-card">
+        <h2 class="chart-title"><i class="fa-solid fa-star"></i> Most Viewed Recipes</h2>
+        {% if analytics.top_recipes %}
+            <div class="bar-chart-list">
+                {% for item in analytics.top_recipes %}
+                <div class="chart-item">
+                    <span class="item-name">{{ item.name }}</span>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill accent-green" style="width: {{ (item.count / analytics.top_recipes[0].count * 100)|int }}%;"></div>
+                    </div>
+                    <span class="item-count">{{ item.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">No recipe view interactions logged yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

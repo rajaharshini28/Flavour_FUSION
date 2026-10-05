@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}User Preferences - Flavour Fusion{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-sliders"></i> Default User <span class="gradient-text">Preferences</span></h1>
+    <p class="page-subtitle">Configure baseline dietary restrictions and macro targets applied to your searches.</p>
+</div>
+
+<div class="form-container glass-card">
+    <form action="{{ url_for('preferences.preferences') }}" method="POST">
+        <div class="form-section grid-2">
+            <div class="form-group">
+                <label for="diet" class="form-label">Default Dietary Preference</label>
+                <select name="diet" id="diet" class="form-control">
+                    <option value="None" {% if user_prefs.get('diet') == 'None' %}selected{% endif %}>None (No Restrictions)</option>
+                    <option value="Vegetarian" {% if user_prefs.get('diet') == 'Vegetarian' %}selected{% endif %}>Vegetarian</option>
+                    <option value="Vegan" {% if user_prefs.get('diet') == 'Vegan' %}selected{% endif %}>Vegan</option>
+                    <option value="Gluten Free" {% if user_prefs.get('diet') == 'Gluten Free' %}selected{% endif %}>Gluten Free</option>
+                    <option value="Dairy Free" {% if user_prefs.get('diet') == 'Dairy Free' %}selected{% endif %}>Dairy Free</option>
+                    <option value="Keto" {% if user_prefs.get('diet') == 'Keto' %}selected{% endif %}>Keto</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cuisine" class="form-label">Default Cuisine Preference</label>
+                <select name="cuisine" id="cuisine" class="form-control">
+                    <option value="Any" {% if user_prefs.get('cuisine') == 'Any' %}selected{% endif %}>Any Cuisine</option>
+                    <option value="Indian" {% if user_prefs.get('cuisine') == 'Indian' %}selected{% endif %}>Indian</option>
+                    <option value="Italian" {% if user_prefs.get('cuisine') == 'Italian' %}selected{% endif %}>Italian</option>
+                    <option value="Mexican" {% if user_prefs.get('cuisine') == 'Mexican' %}selected{% endif %}>Mexican</option>
+                    <option value="Chinese" {% if user_prefs.get('cuisine') == 'Chinese' %}selected{% endif %}>Chinese</option>
+                    <option value="Mediterranean" {% if user_prefs.get('cuisine') == 'Mediterranean' %}selected{% endif %}>Mediterranean</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-section grid-4">
+            <div class="form-group">
+                <label for="max_calories" class="form-label">Max Calories</label>
+                <input type="number" name="max_calories" id="max_calories" class="form-control" 
+                       value="{{ user_prefs.get('max_calories', '') }}">
+            </div>
+            <div class="form-group">
+                <label for="min_protein" class="form-label">Min Protein (g)</label>
+                <input type="number" name="min_protein" id="min_protein" class="form-control" 
+                       value="{{ user_prefs.get('min_protein', '') }}">
+            </div>
+            <div class="form-group">
+                <label for="max_fat" class="form-label">Max Fat (g)</label>
+                <input type="number" name="max_fat" id="max_fat" class="form-control" 
+                       value="{{ user_prefs.get('max_fat', '') }}">
+                </div>
+            <div class="form-group">
+                <label for="max_cooking_time" class="form-label">Max Cooking Time (m)</label>
+                <input type="number" name="max_cooking_time" id="max_cooking_time" class="form-control" 
+                       value="{{ user_prefs.get('max_cooking_time', '') }}">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i> Save Preferences
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

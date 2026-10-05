@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Flavour Fusion - AI Recipe Recommender{% endblock %}</title>
+    <meta name="description" content="AI-driven personalized recipe recommendation platform powered by Flask, Python, and Spoonacular API.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-background"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('main.index') }}" class="nav-logo">
+                <i class="fa-solid fa-utensils logo-icon"></i>
+                <span class="logo-text">Flavour<span class="highlight">Fusion</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('main.index') }}" class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}">
+                    <i class="fa-solid fa-compass"></i> Discover
+                </a>
+                <a href="{{ url_for('history.history') }}" class="nav-link {% if request.endpoint == 'history.history' %}active{% endif %}">
+                    <i class="fa-solid fa-clock-rotate-left"></i> History
+                </a>
+                <a href="{{ url_for('preferences.preferences') }}" class="nav-link {% if request.endpoint == 'preferences.preferences' %}active{% endif %}">
+                    <i class="fa-solid fa-sliders"></i> Preferences
+                </a>
+                <a href="{{ url_for('analytics.analytics') }}" class="nav-link {% if request.endpoint == 'analytics.analytics' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i> Analytics
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages Container -->
+    <div class="flash-messages-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fa-solid fa-circle-info"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2026 <strong>Flavour Fusion</strong>. AI-Driven Personalised Recipe Recommendation Engine.</p>
+            <p class="tech-stack">Built with Flask &bull; Python &bull; HTML5 &bull; CSS3 &bull; JavaScript &bull; SQLite &bull; Spoonacular API</p>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.title }} - Flavour Fusion{% endblock %}
+
+{% block content %}
+<div class="recipe-detail-header">
+    <a href="javascript:history.back()" class="btn btn-outline"><i class="fa-solid fa-arrow-left"></i> Back to Results</a>
+</div>
+
+<div class="detail-container glass-card">
+    <div class="detail-hero grid-2">
+        <div class="detail-image-box">
+            <img src="{{ recipe.image or url_for('static', filename='images/placeholder.jpg') }}" alt="{{ recipe.title }}" class="detail-image">
+        </div>
+        <div class="detail-info-box">
+            <h1 class="detail-title">{{ recipe.title }}</h1>
+            
+            <div class="meta-row">
+                <span class="meta-badge"><i class="fa-solid fa-clock"></i> {{ recipe.readyInMinutes }} mins</span>
+                <span class="meta-badge"><i class="fa-solid fa-utensils"></i> {{ recipe.servings }} servings</span>
+                {% if recipe.cuisines %}
+                    <span class="meta-badge"><i class="fa-solid fa-globe"></i> {{ recipe.cuisines|join(', ') }}</span>
+                {% endif %}
+            </div>
+
+            {% if recipe.diets %}
+            <div class="diet-tags-row">
+                {% for d in recipe.diets %}
+                    <span class="diet-pill"><i class="fa-solid fa-leaf"></i> {{ d.title() }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Macro Summary Cards -->
+            <div class="macros-grid">
+                {% set nutrients = recipe.nutrition.nutrients if recipe.nutrition else [] %}
+                {% set cal = (nutrients | selectattr('name', 'equalto', 'Calories') | first) %}
+                {% set prot = (nutrients | selectattr('name', 'equalto', 'Protein') | first) %}
+                {% set fat = (nutrients | selectattr('name', 'equalto', 'Fat') | first) %}
+                {% set carbs = (nutrients | selectattr('name', 'equalto', 'Carbohydrates') | first) %}
+                
+                <div class="macro-card">
+                    <span class="macro-value">{{ cal.amount|round|int if cal else 'N/A' }}</span>
+                    <span class="macro-label">Calories (kcal)</span>
+                </div>
+                <div class="macro-card">
+                    <span class="macro-value">{{ prot.amount|round|int if prot else 'N/A' }}g</span>
+                    <span class="macro-label">Protein</span>
+                </div>
+                <div class="macro-card">
+                    <span class="macro-value">{{ fat.amount|round|int if fat else 'N/A' }}g</span>
+                    <span class="macro-label">Fat</span>
+                </div>
+                <div class="macro-card">
+                    <span class="macro-value">{{ carbs.amount|round|int if carbs else 'N/A' }}g</span>
+                    <span class="macro-label">Carbs</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-body-grid grid-2">
+        <!-- Ingredients List -->
+        <div class="detail-section">
+            <h2><i class="fa-solid fa-list-check"></i> Required Ingredients</h2>
+            <ul class="ingredient-checklist">
+                {% for item in recipe.extendedIngredients %}
+                    <li>
+                        <i class="fa-solid fa-circle-dot checklist-icon"></i>
+                        <span>{{ item.original or item.name.title() }}</span>
+                    </li>
+                {% else %}
+                    <li class="text-muted">Ingredient information not available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Instructions -->
+        <div class="detail-section">
+            <h2><i class="fa-solid fa-fire"></i> Step-by-Step Instructions</h2>
+            {% if recipe.analyzedInstructions and recipe.analyzedInstructions[0].steps %}
+                <ol class="instructions-list">
+                    {% for step in recipe.analyzedInstructions[0].steps %}
+                        <li>
+                            <span class="step-num">{{ step.number }}</span>
+                            <p class="step-text">{{ step.step }}</p>
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% elif recipe.instructions %}
+                <div class="raw-instructions">{{ recipe.instructions|safe }}</div>
+            {% else %}
+                <p class="text-muted">Cooking instructions not provided for this recipe.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

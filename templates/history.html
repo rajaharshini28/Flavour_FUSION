@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Search History - Flavour Fusion{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-clock-rotate-left"></i> Search & Interaction <span class="gradient-text">History</span></h1>
+    <p class="page-subtitle">Track your previous queries and viewed recipe recommendations.</p>
+</div>
+
+<div class="history-grid grid-2">
+    <!-- Search History -->
+    <div class="glass-card">
+        <h2 class="section-title"><i class="fa-solid fa-magnifying-glass"></i> Past Searches</h2>
+        {% if searches %}
+            <div class="timeline">
+                {% for s in searches %}
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Ingredients: {{ s.ingredients or 'All' }}</span>
+                            <span class="timeline-time">{{ s.created_at }}</span>
+                        </div>
+                        <div class="timeline-tags">
+                            {% if s.diet and s.diet != 'None' %}<span class="tag-mini">Diet: {{ s.diet }}</span>{% endif %}
+                            {% if s.cuisine and s.cuisine != 'Any' %}<span class="tag-mini">Cuisine: {{ s.cuisine }}</span>{% endif %}
+                            {% if s.max_cooking_time %}<span class="tag-mini">Max Time: {{ s.max_cooking_time }}m</span>{% endif %}
+                        </div>
+                        <a href="{{ url_for('recommendation.recommend', search_id=s.id) }}" class="link-btn">
+                            View Results <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">No previous searches logged yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recipe Interactions -->
+    <div class="glass-card">
+        <h2 class="section-title"><i class="fa-solid fa-eye"></i> Viewed Recipes</h2>
+        {% if interactions %}
+            <div class="interactions-list">
+                {% for item in interactions %}
+                <div class="interaction-item">
+                    <div class="inter-icon"><i class="fa-solid fa-utensils"></i></div>
+                    <div class="inter-details">
+                        <a href="{{ url_for('recipe.recipe_details', recipe_id=item.recipe_id) }}" class="inter-title">
+                            {{ item.recipe_name or 'Recipe #' ~ item.recipe_id }}
+                        </a>
+                        <span class="inter-time">{{ item.created_at }}</span>
+                    </div>
+                    <span class="inter-type-badge">{{ item.interaction_type.upper() }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">No recipe interactions recorded yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
